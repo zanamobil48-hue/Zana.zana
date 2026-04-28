@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zana Mobile - فرۆشتنی کارت (دیزاینی ڕاستەوخۆی Asiacell)</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+            direction: rtl;
+        }
+        
+        .no-print {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .card-type-selector {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .amount-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        
+        .amount-btn {
+            background: #e9ecef;
+            border: 2px solid #dee2e6;
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #495057;
+        }
+        
+        .amount-btn.active {
+            background: #2e7d32;
+            border-color: #2e7d32;
+            color: white;
+        }
+        
+        .amount-itunes.active {
+            background: #1e88e5;
+            border-color: #1e88e5;
+        }
+        
+        .data-box {
+            margin: 20px 0;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 14px;
+            border: 2px solid #ddd;
+            border-radius: 16px;
+            resize: vertical;
+            direction: ltr;
+            text-align: left;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #2e7d32;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn-primary {
+            flex: 1;
+            background: #2e7d32;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .btn-danger {
+            flex: 1;
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .summary {
+            background: #e8f5e9;
+            border-radius: 20px;
+            padding: 16px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            .no-print {
+                display: none;
+            }
+            .ticket {
+                page-break-after: always;
+            }
+        }
+        
+        .ticket {
+            width: 58mm;
+            margin: 0 auto;
+            padding: 15px 0;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            direction: rtl;
+            position: relative;
+        }
+        
+        .brand {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        
+        .brand.asia {
+            color: #d32f2f;
+        }
+        
+        .brand.itunes {
+            color: #1e88e5;
+        }
+        
+        /* لۆگۆی ZANA MOBILE - تەنها بۆ iTunes */
+        .zana-logo {
+            font-size: 10px;
+            font-weight: bold;
+            color: #9b59b6;
+            letter-spacing: 1px;
+            margin-top: 8px;
+            padding-top: 5px;
+            border-top: 1px dashed #ccc;
+            display: inline-block;
+        }
+        
+        .stars {
+            font-size: 12px;
+            letter-spacing: 2px;
+            margin: 5px 0;
+        }
+        
+        /* شێوازی تایبەتی Asiacell وەک وێنەکە */
+        .asia-amount-line {
+            font-size: 22px;
+            font-weight: bold;
+            margin: 2px 0;
+        }
+        
+        .asia-currency-line {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 2px 0;
+        }
+        
+        .asia-serial-label, .asia-pin-label {
+            font-size: 10px;
+            font-weight: bold;
+            margin-top: 8px;
+            margin-bottom: 2px;
+        }
+        
+        .asia-serial-box {
+            border: 1px solid #000;
+            padding: 4px;
+            margin: 0 auto 5px auto;
+            width: 85%;
+            font-size: 12px;
+            background: #f9f9f9;
+        }
+        
+        .asia-pin-box {
+            border: 2px solid #000;
+            padding: 6px;
+            margin: 5px auto;
+            width: 85%;
+            font-size: 16px;
+            font-weight: bold;
+            background: #fff9c4;
+        }
+        
+        .asia-instruction {
+            font-size: 10px;
+            font-weight: bold;
+            margin: 8px 0;
+        }
+        
+        .asia-timestamp {
+            font-size: 8px;
+            color: #666;
+            margin: 5px 0;
+        }
+        
+        .asia-footer {
+            font-size: 10px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        /* بۆ iTunes هەمان شێوازی پێشوو */
+        .amount-ticket {
+            font-size: 22px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        
+        .itunes-pincode-box {
+            border: 2px solid #000;
+            padding: 8px;
+            margin: 8px auto;
+            width: 90%;
+            font-size: 16px;
+            font-weight: bold;
+            background: #fff9c4;
+        }
+        
+        .itunes-instruction {
+            font-size: 10px;
+            font-weight: bold;
+            margin: 8px 0;
+        }
+        
+        .timestamp {
+            font-size: 8px;
+            color: #666;
+            margin: 5px 0;
+        }
+        
+        .qr-container {
+            display: flex;
+            justify-content: center;
+            margin: 8px 0;
+        }
+        
+        .save-status {
+            font-size: 12px;
+            color: green;
+            margin-top: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="no-print">
+    <div class="card-type-selector">
+        <h3 style="text-align: center; margin-bottom: 10px;">🏪 بڕی کارت هەڵبژێرە:</h3>
+        
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <button id="selectAsiaBtn" style="flex:1; padding:10px; border-radius:30px; border:2px solid #2e7d32; background:#2e7d32; color:white; font-weight:bold; cursor:pointer;">📱 Asiacell</button>
+            <button id="selectItunesBtn" style="flex:1; padding:10px; border-radius:30px; border:2px solid #ccc; background:#f0f0f0; color:#333; font-weight:bold; cursor:pointer;">🍎 iTunes</button>
+        </div>
+        
+        <div id="amountContainer" class="amount-buttons">
+        </div>
+    </div>
+    
+    <div class="data-box">
+        <label style="font-weight: bold; display: block; margin-bottom: 8px;">📝 داتاکان لێرە دابنێ (سێریال + کۆد):</label>
+        <textarea id="codesInput" placeholder="نموونە بۆ Asiacell:
+987654321 123456789
+555666777 888999000
+
+بۆ iTunes تەنها کۆد:
+ABCDEF123456
+GHIJKL789012"></textarea>
+        <div style="font-size: 12px; color: #666; margin-top: 5px;">📌 تێبینی: بۆ iTunes تەنها کۆدەکە دابنێ (سێریال پێویست نییە)</div>
+    </div>
+    
+    <div class="buttons">
+        <button class="btn-primary" id="printBtn">🖨️ فرۆشتن و چاپکردن</button>
+        <button class="btn-danger" id="clearBtn">🗑️ سڕینەوەی داتاکان</button>
+    </div>
+    
+    <div class="summary">
+        <span>💰 کۆی پارە</span>
+        <span id="totalAmount">IQD 0</span>
+    </div>
+    <div class="summary" style="margin-top: 10px; background: #e3f2fd;">
+        <span>📇 کارتەکان</span>
+        <span id="totalCards">0</span>
+    </div>
+    <div id="saveStatus" class="save-status"></div>
+</div>
+
+<div id="printArea"></div>
+
+<script>
+    let currentType = "asia";
+    const asiaAmounts = ["IQD 5,000", "IQD 10,000", "IQD 25,000"];
+    const itunesAmounts = ["$5", "$10", "$15", "$50", "$100"];
+    let selectedAmount = asiaAmounts[0];
+
+    function loadFromStorage() {
+        const savedType = localStorage.getItem("zana_card_type");
+        const savedAmount = localStorage.getItem("zana_selected_amount");
+        const savedCodes = localStorage.getItem("zana_codes_input");
+        if (savedType === "itunes") {
+            currentType = "itunes";
+            document.getElementById("selectItunesBtn").click();
+        } else {
+            currentType = "asia";
+            document.getElementById("selectAsiaBtn").click();
+        }
+        if (savedAmount) {
+            if (currentType === "asia" && asiaAmounts.includes(savedAmount)) selectedAmount = savedAmount;
+            if (currentType === "itunes" && itunesAmounts.includes(savedAmount)) selectedAmount = savedAmount;
+            renderAmountButtons();
+        }
+        if (savedCodes) {
+            document.getElementById("codesInput").value = savedCodes;
+        }
+    }
+
+    function saveToStorage() {
+        localStorage.setItem("zana_card_type", currentType);
+        localStorage.setItem("zana_selected_amount", selectedAmount);
+        localStorage.setItem("zana_codes_input", document.getElementById("codesInput").value);
+        const statusDiv = document.getElementById("saveStatus");
+        statusDiv.innerText = "💾 خۆکارانە هەڵگیرا";
+        setTimeout(() => { if(statusDiv) statusDiv.innerText = ""; }, 1500);
+    }
+
+    function renderAmountButtons() {
+        const container = document.getElementById("amountContainer");
+        const amounts = currentType === "asia" ? asiaAmounts : itunesAmounts;
+        container.innerHTML = "";
+        amounts.forEach(amount => {
+            const btn = document.createElement("button");
+            btn.className = "amount-btn";
+            if (currentType === "itunes") btn.classList.add("amount-itunes");
+            if (selectedAmount === amount) btn.classList.add("active");
+            btn.textContent = amount;
+            btn.onclick = () => {
+                selectedAmount = amount;
+                renderAmountButtons();
+                saveToStorage();
+            };
+            container.appendChild(btn);
+        });
+    }
+
+    document.getElementById("selectAsiaBtn").onclick = () => {
+        currentType = "asia";
+        selectedAmount = asiaAmounts[0];
+        document.getElementById("selectAsiaBtn").style.background = "#2e7d32";
+        document.getElementById("selectAsiaBtn").style.color = "white";
+        document.getElementById("selectAsiaBtn").style.borderColor = "#2e7d32";
+        document.getElementById("selectItunesBtn").style.background = "#f0f0f0";
+        document.getElementById("selectItunesBtn").style.color = "#333";
+        document.getElementById("selectItunesBtn").style.borderColor = "#ccc";
+        renderAmountButtons();
+        saveToStorage();
+    };
+    
+    document.getElementById("selectItunesBtn").onclick = () => {
+        currentType = "itunes";
+        selectedAmount = itunesAmounts[0];
+        document.getElementById("selectItunesBtn").style.background = "#1e88e5";
+        document.getElementById("selectItunesBtn").style.color = "white";
+        document.getElementById("selectItunesBtn").style.borderColor = "#1e88e5";
+        document.getElementById("selectAsiaBtn").style.background = "#f0f0f0";
+        document.getElementById("selectAsiaBtn").style.color = "#333";
+        document.getElementById("selectAsiaBtn").style.borderColor = "#ccc";
+        renderAmountButtons();
+        saveToStorage();
+    };
+
+    function clearData() {
+        document.getElementById("codesInput").value = "";
+        updateSummary(0, 0);
+        saveToStorage();
+    }
+    document.getElementById("clearBtn").onclick = clearData;
+
+    function updateSummary(total, count) {
+        if (currentType === "asia") {
+            document.getElementById("totalAmount").innerHTML = `IQD ${total.toLocaleString()}`;
+        } else {
+            document.getElementById("totalAmount").innerHTML = `$${total}`;
+        }
+        document.getElementById("totalCards").innerText = count;
+    }
+    
+    function extractNumericValue(amountStr) {
+        if (amountStr.includes("IQD")) {
+            return parseInt(amountStr.replace(/[^0-9]/g, ''), 10);
+        } else if (amountStr.includes("$")) {
+            return parseInt(amountStr.replace(/[^0-9]/g, ''), 10);
+        }
+        return 0;
+    }
+    
+    function generateTickets() {
+        const input = document.getElementById('codesInput').value;
+        const lines = input.split(/\r?\n/);
+        const printArea = document.getElementById('printArea');
+        printArea.innerHTML = '';
+        
+        let tickets = [];
+        
+        for (let line of lines) {
+            line = line.trim();
+            if (!line) continue;
+            
+            if (currentType === "asia") {
+                const parts = line.split(/\s+/);
+                if (parts.length >= 2) {
+                    tickets.push({
+                        type: "asia",
+                        amount: selectedAmount,
+                        serial: parts[0],
+                        code: parts[1]
+                    });
+                }
+            } else {
+                tickets.push({
+                    type: "itunes",
+                    amount: selectedAmount,
+                    serial: null,
+                    code: line
+                });
+            }
+        }
+        
+        if (tickets.length === 0) {
+            alert("تکایە داتاکان بە شێوەی ڕاست داخڵ بکە!");
+            return;
+        }
+        
+        const now = new Date();
+        // بۆ Asiacell: کات بە شێوەی "PM | 27/04/2026 06:03"
+        let hours = now.getHours();
+        let minutes = now.getMinutes();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // 12 بۆ 12:00
+        const timeStr12 = `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}`;
+        const dateStr = now.toLocaleDateString('en-GB'); // 27/04/2026
+        
+        let totalPrice = 0;
+        tickets.forEach((ticket, idx) => {
+            const amountValue = extractNumericValue(ticket.amount);
+            totalPrice += amountValue;
+            
+            const ticketDiv = document.createElement('div');
+            ticketDiv.className = 'ticket';
+            
+            if (ticket.type === "asia") {
+                const dialCode = `tel:*133*${ticket.code}%23`;
+                const numericPart = amountValue; // 5000, 10000, 25000
+                const shortNumber = numericPart / 1000; // 5, 10, 25
+                // دیزاین بەپێی وێنەکە
+                ticketDiv.innerHTML = `
+                    <div class="brand asia">Asiacell</div>
+                    <div class="stars">~~~~~~~~~</div>
+                    <div class="asia-amount-line">(${numericPart.toLocaleString()})</div>
+                    <div class="asia-currency-line">(IQD)</div>
+                    <div class="stars">~~~~~~~~~</div>
+                    <div class="asia-serial-label">S/N (الرقم التسلسلي)</div>
+                    <div class="asia-serial-box">${ticket.serial}</div>
+                    <div class="stars">~~~~~~~~~</div>
+                    <div class="asia-serial-label">Pincode (الرقم السري)</div>
+                    <div class="asia-pin-box">${ticket.code}</div>
+                    <div class="asia-instruction">أدخل *133*${ticket.code}# ثم واتصال</div>
+                    <div class="stars">~~~~~~~~~</div>
+                    <div class="asia-timestamp">${ampm} | ${dateStr} ${timeStr12}</div>
+                    <div class="asia-footer">***** ${shortNumber} *****</div>
+                    <div class="qr-container" id="qr-asia-${idx}"></div>
+                `;
+                printArea.appendChild(ticketDiv);
+                new QRCode(document.getElementById(`qr-asia-${idx}`), {
+                    text: dialCode,
+                    width: 90,
+                    height: 90,
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            } 
+            else {
+                const redeemUrl = `https://redeem.apple.com?code=${ticket.code}`;
+                ticketDiv.innerHTML = `
+                    <div class="brand itunes">✅ iTunes</div>
+                    <div class="stars">~~~~~~~~~~~~~</div>
+                    <div class="amount-ticket">${ticket.amount}</div>
+                    <div class="stars">~~~~~~~~~~~~~</div>
+                    <div class="label">🎫 کۆدی کشانەوە (Redeem Code)</div>
+                    <div class="itunes-pincode-box">${ticket.code}</div>
+                    <div class="itunes-instruction">🔄 بڕۆ بۆ App Store → Account → Redeem</div>
+                    <div class="qr-container" id="qr-itunes-${idx}"></div>
+                    <div class="timestamp">${ampm} | ${dateStr} ${timeStr12}</div>
+                    <div class="footer">* * * iTunes ${ticket.amount} * * *</div>
+                    <div class="zana-logo">⚡ ZANA MOBILE ⚡</div>
+                `;
+                printArea.appendChild(ticketDiv);
+                new QRCode(document.getElementById(`qr-itunes-${idx}`), {
+                    text: redeemUrl,
+                    width: 90,
+                    height: 90,
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            }
+        });
+        
+        updateSummary(totalPrice, tickets.length);
+        
+        setTimeout(() => { window.print(); }, 800);
+    }
+    
+    document.getElementById("printBtn").onclick = generateTickets;
+    document.getElementById("codesInput").addEventListener("input", saveToStorage);
+    
+    loadFromStorage();
+    renderAmountButtons();
+</script>
+</body>
+</html>
